@@ -6,7 +6,15 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Parses incoming JSON requests
+app.use(express.json());
+
+// Import Routes
+const userRoutes = require('./routes/userRoutes');
+const workOrderRoutes = require('./routes/workOrderRoutes');
+
+// Use Routes
+app.use('/api/users', userRoutes);
+app.use('/api/work-orders', workOrderRoutes);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

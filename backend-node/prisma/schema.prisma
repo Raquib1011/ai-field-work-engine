@@ -1,13 +1,46 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  TECHNICIAN
+}
+
+enum OrderStatus {
+  OPEN
+  ASSIGNED
+  COMPLETED
+}
+
+model User {
+  id           String      @id @default(uuid())
+  name         String
+  email        String      @unique
+  role         Role
+  location_zip String
+  skills       Skill[]
+  workOrders   WorkOrder[] @relation("AssignedTech")
+}
+
+model Skill {
+  id               String @id @default(uuid())
+  skill_name       String
+  experience_years Int
+  user_id          String
+  user             User   @relation(fields: [user_id], references: [id])
+}
+
+model WorkOrder {
+  id               String      @id @default(uuid())
+  title            String
+  description      String      @db.Text
+  status           OrderStatus @default(OPEN)
+  required_skills  Json
+  assigned_tech_id String?
+  assigned_tech    User?       @relation("AssignedTech", fields: [assigned_tech_id], references: [id])
 }

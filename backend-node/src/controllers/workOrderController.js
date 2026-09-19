@@ -1,28 +1,38 @@
 const prisma = require('../prisma');
 
-// Create a new work order
-const createWorkOrder = async (req, res) => {
+// Fetch all work orders
+exports.getWorkOrders = async (req, res) => {
     try {
-        const { title, description, required_skills } = req.body;
-        const workOrder = await prisma.workOrder.create({
-            data: { title, description, required_skills }
+        const orders = await prisma.workOrder.findMany({
+            include: { assigned_tech: true }
         });
-        res.status(201).json(workOrder);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 };
 
-// Get all work orders
-const getWorkOrders = async (req, res) => {
+// Assign technician to a work order
+exports.assignTechnician = async (req, res) => {
     try {
-        const workOrders = await prisma.workOrder.findMany({
-            include: { assigned_tech: true } // Joins assigned user data if it exists
+        const { id } = req.params;
+        const techId = req.body.technicianId || req.body.technician_id;
+
+        if (!techId) {
+            return res.status(400).json({ error: 'technicianId is required' });
+        }
+
+        const updated = await prisma.workOrder.update({
+            where: { id },
+            data: {
+                assigned_tech_id: techId,
+                status: 'ASSIGNED'
+            }
         });
-        res.status(200).json(workOrders);
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+
+        res.json(updated);
+    } catch (err) {
+        console.error('Assign error:', err);
+        res.status(500).json({ error: err.message });
     }
 };
-
-module.exports = { createWorkOrder, getWorkOrders };

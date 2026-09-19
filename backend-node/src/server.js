@@ -11,10 +11,12 @@ app.use(express.json());
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
 const workOrderRoutes = require('./routes/workOrderRoutes');
+const matchRoutes = require('./routes/matchRoutes');
 
 // Use Routes
 app.use('/api/users', userRoutes);
 app.use('/api/work-orders', workOrderRoutes);
+app.use('/api/match', matchRoutes);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

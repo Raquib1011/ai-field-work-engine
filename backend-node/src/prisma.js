@@ -2,8 +2,11 @@ const { PrismaClient } = require('@prisma/client');
 const { PrismaMariaDb } = require('@prisma/adapter-mariadb');
 const mariadb = require('mariadb');
 
-// Create a database connection pool
-const pool = mariadb.createPool(process.env.DATABASE_URL);
+// Intercept the URL and swap the prefix for the driver
+const connectionString = process.env.DATABASE_URL.replace('mysql://', 'mariadb://');
+
+// Create a database connection pool using the modified string
+const pool = mariadb.createPool(connectionString);
 
 // Initialize the Prisma adapter
 const adapter = new PrismaMariaDb(pool);

@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'https://ai-field-work-engine.onrender.com/api',
+    baseURL: import.meta.env.DEV 
+        ? 'http://localhost:5000/api' 
+        : 'https://ai-field-work-engine.onrender.com/api',
 });
 
 export const fetchWorkOrders = () => API.get('/work-orders');
@@ -12,3 +14,4 @@ export const assignTechnician = (workOrderId, technicianId) =>
         technicianId, 
         technician_id: technicianId 
     });
+export const resetDemoData = () => API.post('/demo/reset');

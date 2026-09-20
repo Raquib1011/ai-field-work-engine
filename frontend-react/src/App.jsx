@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { fetchWorkOrders } from './services/api';
+import { fetchWorkOrders, resetDemoData } from './services/api';
 import WorkOrderCard from './components/WorkOrderCard';
 import TechnicianMatchModal from './components/TechnicianMatchModal';
-import { LayoutDashboard, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, RefreshCw, RotateCcw } from 'lucide-react';
 
 export default function App() {
     const [workOrders, setWorkOrders] = useState([]);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isResetting, setIsResetting] = useState(false);
 
     const loadOrders = async () => {
         setLoading(true);
@@ -18,6 +19,18 @@ export default function App() {
             console.error("Failed to load work orders:", err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleResetDemo = async () => {
+        setIsResetting(true);
+        try {
+            await resetDemoData();
+            await loadOrders();
+        } catch (err) {
+            console.error("Failed to reset demo data:", err);
+        } finally {
+            setIsResetting(false);
         }
     };
 
@@ -37,9 +50,26 @@ export default function App() {
                             AI Field Work Dispatch
                         </h1>
                     </div>
-                    <button onClick={loadOrders} className="p-2 text-slate-500 hover:text-slate-800 transition">
-                        <RefreshCw className="w-5 h-5" />
-                    </button>
+
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={handleResetDemo}
+                            disabled={isResetting}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition disabled:opacity-50"
+                            title="Reset all work orders back to OPEN status"
+                        >
+                            <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
+                            {isResetting ? 'Resetting...' : 'Reset Demo Data'}
+                        </button>
+
+                        <button 
+                            onClick={loadOrders} 
+                            className="p-2 text-slate-500 hover:text-slate-800 transition rounded-lg hover:bg-slate-100"
+                            title="Refresh work orders"
+                        >
+                            <RefreshCw className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </header>
 

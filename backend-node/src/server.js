@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const prisma = require('./prisma');
 
 const app = express();
 
@@ -17,6 +18,21 @@ const matchRoutes = require('./routes/matchRoutes');
 app.use('/api/users', userRoutes);
 app.use('/api/work-orders', workOrderRoutes);
 app.use('/api/match', matchRoutes);
+
+// Demo Reset Route for Portfolio Reviewers
+app.post('/api/demo/reset', async (req, res, next) => {
+    try {
+        await prisma.workOrder.updateMany({
+            data: {
+                status: 'OPEN',
+                assigned_tech_id: null
+            }
+        });
+        res.status(200).json({ message: 'Demo work orders reset successfully' });
+    } catch (error) {
+        next(error);
+    }
+});
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

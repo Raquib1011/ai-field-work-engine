@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test:api": "newman run ../tests/postman_collection.json"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "mariadb": "^3.5.4"
   },
   "devDependencies": {
+    "newman": "^6.2.2",
     "nodemon": "^3.1.14",
     "prisma": "^7.10.0"
   },

@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 // Default to local FastAPI port; can be overridden by environment variable for Docker
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'https://field-work-ml.onrender.com';
 
 /**
  * Sends technician and job details to Python FastAPI microservice for AI match scoring

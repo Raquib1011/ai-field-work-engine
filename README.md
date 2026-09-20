@@ -181,6 +181,8 @@ npm run test:api
 - **ML Microservice**: [https://field-work-ml.onrender.com](https://field-work-ml.onrender.com/health)
 - **MySQL Database**: Managed Cloud MySQL Instance (Aiven / Render)
 
+Note: If the vercel app does not work properly, please first start the Core Backend API and the ML Microservice then try again after the services wake up.
+
 ---
 
 ## 👤 Author

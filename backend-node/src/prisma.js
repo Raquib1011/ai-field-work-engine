@@ -1,17 +1,24 @@
-const { PrismaClient } = require('@prisma/client');
-const { PrismaMariaDb } = require('@prisma/adapter-mariadb');
+require('dotenv').config();
 const mariadb = require('mariadb');
+const { PrismaMariaDb } = require('@prisma/adapter-mariadb');
+const { PrismaClient } = require('@prisma/client');
 
-// Intercept the URL and swap the prefix for the driver
-const connectionString = process.env.DATABASE_URL.replace('mysql://', 'mariadb://');
+// Parse connection URL parameters
+const dbUrl = new URL(process.env.DATABASE_URL);
 
-// Create a database connection pool using the modified string
-const pool = mariadb.createPool(connectionString);
+const pool = mariadb.createPool({
+  host: dbUrl.hostname,
+  port: Number(dbUrl.port) || 4000,
+  user: decodeURIComponent(dbUrl.username),
+  password: decodeURIComponent(dbUrl.password),
+  database: dbUrl.pathname.replace('/', ''),
+  ssl: {
+    rejectUnauthorized: false
+  },
+  connectionLimit: 5
+});
 
-// Initialize the Prisma adapter
 const adapter = new PrismaMariaDb(pool);
-
-// Pass the adapter to the Prisma Client
 const prisma = new PrismaClient({ adapter });
 
 module.exports = prisma;

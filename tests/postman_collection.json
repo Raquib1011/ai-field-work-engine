@@ -3,6 +3,10 @@
 		"name": "Field Work Engine API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"variable": [
+		{ "key": "baseUrl", "value": "https://ai-field-work-engine.onrender.com" },
+		{ "key": "mlUrl", "value": "https://field-work-ml.onrender.com" }
+	],
 	"item": [
 		{
 			"name": "Health Check",
@@ -26,18 +30,118 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/health",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"health"
-					]
+				"url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+			}
+		},
+		{
+			"name": "ML Service Health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"ML service status is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": { "raw": "{{mlUrl}}/", "host": ["{{mlUrl}}"], "path": [] }
+			}
+		},
+		{
+			"name": "Get Work Orders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();",
+							"var list = Array.isArray(data) ? data : (data.data || data.workOrders || []);",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Returns a non-empty list of work orders\", function () {",
+							"    pm.expect(list.length).to.be.above(0);",
+							"});",
+							"pm.test(\"Response time under 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"if (list.length > 0) { pm.collectionVariables.set(\"workOrderId\", list[0].id); }"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": { "raw": "{{baseUrl}}/api/work-orders", "host": ["{{baseUrl}}"], "path": ["api", "work-orders"] }
+			}
+		},
+		{
+			"name": "Get Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();",
+							"var list = Array.isArray(data) ? data : (data.data || data.users || []);",
+							"pm.test(\"Users status is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Returns a non-empty list of users\", function () {",
+							"    pm.expect(list.length).to.be.above(0);",
+							"});",
+							"if (list.length > 0) { pm.collectionVariables.set(\"technicianId\", list[0].id); }"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+			}
+		},
+		{
+			"name": "Evaluate AI Match",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Match status is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response includes an AI match result\", function () {",
+							"    var body = pm.response.json();",
+							"    pm.expect(body).to.have.property(\"aiMatchResult\");",
+							"});",
+							"pm.test(\"Match score is a number\", function () {",
+							"    var body = pm.response.json();",
+							"    pm.expect(body.aiMatchResult.match_score).to.be.a(\"number\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [{ "key": "Content-Type", "value": "application/json" }],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"technicianId\": \"{{technicianId}}\", \"workOrderId\": \"{{workOrderId}}\", \"distanceKm\": 10}"
+				},
+				"url": { "raw": "{{baseUrl}}/api/match/evaluate", "host": ["{{baseUrl}}"], "path": ["api", "match", "evaluate"] }
 			}
 		}
 	]
